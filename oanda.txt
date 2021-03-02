@@ -1,0 +1,4 @@
+[oanda]
+access_token = e30bf2baa9efb568e7117a15d76c49da-d7eb34263f65cf1b56648a148c5768ab
+account_id = 101-011-18296595-001
+environment = practice

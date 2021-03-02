@@ -1,2 +1,1 @@
-# fxm
- for learning algo trading
+for learning algo trading
