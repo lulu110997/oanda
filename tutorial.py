@@ -11,10 +11,11 @@ rv = client.request(r)
 print("RESPONSE:{escape_char}n{}".format(json.dumps(rv, indent=2)))
  '''
 import configparser
-import pandas as pd
+# import pandas as pd
+# import json
+# import oandapyV20.endpoints.accounts as accounts
+import datetime
 import oandapyV20 as opy
-import json
-import oandapyV20.endpoints.accounts as accounts
 import oandapyV20.endpoints.instruments as instruments
 
 # Read the ini file to obtain the account id and access token
@@ -40,4 +41,6 @@ params = {
 r = instruments.InstrumentsCandles(instrument="USD_CAD",
                                     params=params)
 oanda.request(r)
-print(r.response['candles'][1]['mid'])
+print(r.response['candles'][1]['time'])
+timestamp = datetime.datetime.fromtimestamp(1500000000)
+print(timestamp.strftime('%Y-%m-%d %H:%M:%S'))
