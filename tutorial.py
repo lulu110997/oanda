@@ -1,15 +1,21 @@
 import configparser
 import pandas as pd
 import numpy as np
-import oandapyV20 as opy
+
 import mplfinance as mpf
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
+import oandapyV20 as opy
 import oandapyV20.endpoints.instruments as instruments
 import oandapyV20.endpoints.orders as orders
-
 ## Some important documentations
 # https://pypi.org/project/mplfinance/
 
 def csv_for_testing(df):
+    '''
+    Only used for testing
+    '''
     df.to_csv('C:\\Users\\louis\\Downloads\\del\\csv.csv')
 
 
@@ -37,7 +43,7 @@ def connect_to_server():
     return oanda, account_id
 
 
-def get_candles(granularity, instrument, count=100):
+def get_candles(granularity, instrument="USD_CAD", count=100):
     '''
     Returns candlestick information based on given parameters.
     Information is returned as a pandas df
@@ -49,7 +55,7 @@ def get_candles(granularity, instrument, count=100):
     }
 
     oanda, __ = connect_to_server()
-    r = instruments.InstrumentsCandles(instrument="USD_CAD",
+    r = instruments.InstrumentsCandles(instrument,
                                         params=params)
     oanda.request(r)
     candles = r.response['candles']
@@ -91,6 +97,25 @@ def calculate_wma(df, period):
     # csv_for_testing(df)
     return df
 
+def calculate_rsi(df, period=14):
+    '''
+    Calculate rsi of a dataframe. Returns the
+    dataframe with the rsi included
+    '''
+    delta = df['Close'].diff()
+    d_up, d_down = delta.copy(), delta.copy()
+    d_up[d_up < 0] = 0
+    d_down[d_down > 0] = 0
+    rol_up = d_up.rolling(period).mean()
+    rol_down = np.absolute(d_down.rolling(period).mean())
+    rs = rol_up / rol_down
+    rsi = 100.0 - (100.0 / (1.0 + rs))
+
+    new_column = str(period) + '-rsi'
+    df[new_column] = rsi
+    csv_for_testing(df)
+    return df
+
 def plot_candlestick(df, new_column):
     '''
     To plot multiple candlestick charts with EMA + other technical indicators
@@ -99,12 +124,32 @@ def plot_candlestick(df, new_column):
     apdict = mpf.make_addplot(df[new_column])
     mpf.plot(df, type='candle', volume=True, addplot=apdict)
 
+def plot_rsi(df, new_column='14-rsi'):
+    '''
+    Plots rsi values using matplotlib
+    '''
+    plt.plot(df.index, df[new_column])
+    axes = plt.gca()
+    axes.set_ylim([0,100])
+    print(df.index)
+    plt.plot(df.index, [30]*100, 'k-')
+    plt.plot(df.index, [70]*100, 'r-')
+    xfmt = mdates.DateFormatter('%d-%m-%y %H:%M')
+    axes.xaxis.set_major_formatter(xfmt)
+
+    plt.show()
+
+
 def main():
     periods = [10, 25, 51]
     new_columns = ['10-wma', '25-wma', '51-wma']
-    data = get_candles('D', 'USD_CAD')
+    data = get_candles('H8', 'USD_CAD')
     for i in periods:
         data = calculate_wma(data, i)
-    plot_candlestick(data, new_columns)
+    data = calculate_rsi(data)
+    # plot_candlestick(data, new_columns)
+    plot_rsi(data)
+
+
 
 main()
