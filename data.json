@@ -1,0 +1,14 @@
+{
+  "order": {
+    "price": "1.2",
+    "stopLossOnFill": {
+      "timeInForce": "GTC",
+      "price": "1.22"
+    },
+    "timeInForce": "GTC",
+    "instrument": "EUR_USD",
+    "units": "-100",
+    "type": "LIMIT",
+    "positionFill": "DEFAULT"
+  }
+}
